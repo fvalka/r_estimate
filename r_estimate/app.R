@@ -50,6 +50,7 @@ server <- function(input, output) {
   plotRcombined <- function(data, lockdown_date, plot_ages) {
     last_date <- tail(data$dates, 1)
     dates_all_plot <- last_date - days(45) + days(seq(0:44))
+    dates_all_plot_extended <- last_date - days(55) + days(seq(0:54))
     
     R_with_dates <- data.frame("Date" = data$case_incidence$dates[-(1:data$window_size)], "R_median" = data$estimated_R$`Median(R)`)
     cases_with_dates <- data.frame("Date" = data$dates, "Cases" = data$cases, 
@@ -58,9 +59,9 @@ server <- function(input, output) {
     r_plot <- ggplot(data = data$estimated_R, aes(x=data$case_incidence$dates[t_end]))
     
     # Add half a day to obtain the midpoint between t_Start and t_End
-    delay_ecdf <- movavg(ecdf_incubation_reporting(difftime(dates_all_plot, lockdown_date , units = c("days")) + 0.5), 
+    delay_ecdf <- movavg(ecdf_incubation_reporting(difftime(dates_all_plot_extended, lockdown_date , units = c("days")) + 0.5), 
                          n=data$window_size, type = "s")
-    delay_ecdf_plot_data <- data.frame("Start" = dates_all_plot, "End" = dates_all_plot + days(1), 
+    delay_ecdf_plot_data <- data.frame("Start" = dates_all_plot_extended, "End" = dates_all_plot_extended + days(1), 
                                        "Delay CDF" = delay_ecdf)
     
     # Workaround: Setting x causes a warning, but not setting x causes an error
@@ -74,8 +75,8 @@ server <- function(input, output) {
       geom_ribbon(aes(ymin=`Quantile.0.025(R)`, ymax=`Quantile.0.975(R)`), alpha=0.5, fill="#5f7e87") + 
       geom_hline(yintercept=1, linetype="dashed", color = "black", size=0.5) +
       geom_vline(xintercept = lockdown_date, color="#d66449", alpha=0.3, size=2) +
-      annotate(geom = "text", x = lockdown_date, y = 0.1, label="Intervention", color="#822c20", hjust = 0, vjust=-0.4, angle = 90) +
-      ggtitle(TeX("Sliding time window $R_{t,\\tau}$ Estimation")) +
+      annotate(geom = "text", x = lockdown_date, y = 0.1, label="Infection", color="#822c20", hjust = 0, vjust=-0.4, angle = 90) +
+      #ggtitle(TeX("Sliding time window $R_{t,\\tau}$ Estimation")) +
       xlab("Date") +
       ylab(TeX(paste("$R_{t,\\tau}$ with sliding time window $\\,\\tau =", data$window_size, "$ days"))) +
       coord_cartesian(ylim = c(0, 3.5), xlim=c(head(dates_all_plot, 1), tail(dates_all_plot, 1))) +
@@ -106,82 +107,78 @@ server <- function(input, output) {
     data <- data_result[[input$county]][[input$tau - 2]]
     plotRcombined(data, input$intervention_date, input$plot_ages)
   })
+  
+  output$last_update <- renderText({
+    data <- data_result[[input$county]][[input$tau - 2]]
+    format(tail(data$dates, 1), format="%Y-%m-%d")
+  })
 }
 
 ui <- fluidPage(
   withMathJax(),
-  titlePanel("Estimation of the time dependent reproduction number R based on reported cases in Austria"),
-  sidebarLayout(
-    sidebarPanel(
-      selectInput("county", h3("State"), 
-                  choices = list("Whole country" = "AT", 
-                                 "Vienna" = "W",
-                                 "Lower Austria" = "NÖ",
-                                 "Upper Austria" = "OÖ",
-                                 "Styria" = "ST",
-                                 "Tyrol" = "T",
-                                 "Carinthia" = "K",
-                                 "Salzburg" = "S",
-                                 "Vorarlberg" = "V",
-                                 "Burgenland" = "B"), 
-                  selected = "AT"),
-      dateInput("intervention_date", "Intervention date", ymd("2020-03-16")),
-      sliderInput(inputId = "tau", label = "Sliding time window \\(\\tau\\) [days]", 
-                  min = 3,
-                  max = 20,
-                  value = 7),
-      checkboxInput("plot_ages", "Plot AGES \\(\\tau = 13\\) days \\(R_{t,\\tau}\\) estimate for Austria", FALSE)
-    ),
-    mainPanel(
-      plotOutput(outputId = "combinedRplot", height="70vh") %>% withSpinner(color="#4c666f"),
-      h3("Cumulative distribution function of the time delay from infection to inclusion in the \\(R_{t,\\tau}\\) estimate \\(t_{infection,estimation}\\)"),
-      helpText("The background color gradient shows the Delay.CDF which is an estimate of the cumulative distribution 
-                  function of three different time delays introduced into the estimation of \\(R_{t,\\tau}\\). 
-                  These time delays are the time from infection to symptom onset (incubation time) \\(t_{infection,onset}\\), the time
-                  from onset to reporting \\(t_{onset,reporting}\\) and the time delay introduced by the \\(R_{t,\\tau}\\) methodology 
-                  of assuming a fixed \\(R_t\\) within the time window \\(\\tau\\) which we will call \\(t_{reporting,estimation}\\)."),
-      
-      helpText("Estimates for the combined time delay of both \\(t_{infection,onset}\\) and \\(t_{onset,reporting}\\) are obtained 
-                through Monte Carlo addition. This means drawing a large sample of random values \\(t_{infection,onset}^i\\) and 
-                \\(t_{onset,reporting}^i\\) from the 
-                \\(\\Gamma\\) distributions published for the estimates of those time delays and then
-                adding the drawn samples together \\(t_{infection,reporting}^i = t_{infection,onset}^i + t_{onset,reporting}^i \\).
-                The empirical cumulative distribution function 
-                \\(\\displaystyle{\\widehat {F}}_{infection,reporting}(t)\\) of the combined samples is then obtained."),
-      
-      helpText("Published parameter estimates for the \\(\\Gamma\\) distributions used were originally obtained from Chinese case data. 
-                 This assumption has possible implications for the applicability of the estimation in the current context, since the reporting time 
-                 \\(t_{onset,reporting}\\) may vary significantly, depending on the circumstances."),
-      
-      helpText("Based upon an intervention date \\(t_{intervention}\\) the ECDF is used to obtain the fraction of cases infected on the 
-                  day of the intervention and expected to have been reported by the day \\(t_j\\) as follows:
-                 
-                 $$ \\displaystyle{\\widehat {F}}_{infection,reporting}\\left(t_j - t_{intervention} + \\frac{1}{2}\\right) $$"),
-      
-      helpText("In the final step the time delay from reporting to esimtation \\(t_{reporting,estimation}\\) is considered.
-                  To approximate the effect of the assumption of \\(R_t\\) being constant within the sliding time window \\(\\tau\\) a 
-                  simple moving average with a backward window length of \\(\\tau\\) is applied to 
-                 \\(\\displaystyle{\\widehat {F}}_{infection,reporting}(t_j - t_{intervention})\\).
-                 "),
-      h3("Data sources"),
-      h4("Case data for Austria"),
-      tags$div(checked=NA,
-               tags$a(href="https://www.sozialministerium.at/Informationen-zum-Coronavirus/Neuartiges-Coronavirus-(2019-nCov).html", 
-                      "Bundesministerium für Soziales, Gesundheit, Pflege und Konsumentenschutz"),
-               ". Aggregated by the ",
-               tags$a(href="https://www.csh.ac.at/", "Complexity Science Hub Vienna"),
-               " and published on ",
-               tags$a(href="https://github.com/osaukh/dashcoch-AT", "GitHub"),
-               ".",
-               tags$br(),
-               "The data as published at the 15:00 CET deadline is used in this dataset."
-      ),
-      h4("AGES \\(R_{t,\\tau}\\) estimate"),
-      tags$div(checked=NA,
-               tags$a(href="https://www.ages.at/en/wissen-aktuell/publikationen/epidemiologische-parameter-des-covid19-ausbruchs-oesterreich-2020/", 
-                      "AGES - Österreichische Agentur für Gesundheit und Ernährungssicherheit GmbH")
+  fluidRow(
+    column(12, class = "col-lg-6 col-lg-offset-4", style="margin-bottom: 1em; text-align:center;",
+      titlePanel("Estimation of the Time-Varying Reproduction Number \\(R_t\\) and the Time-Delay from 
+          Infection to Estimation in Austria"
       )
     )
+  ),
+  fluidRow(
+    column(4, class = "col-lg-2 col-lg-offset-2", style="",
+           h3("Settings"),
+      tags$div(style="background-color: #F8F8F8; border: 1px solid #95b2b7; padding:1em; padding-bottom:2em;",
+       selectInput("county", "State", 
+                   choices = list("Whole country" = "AT", 
+                                  "Vienna" = "W",
+                                  "Lower Austria" = "NÖ",
+                                  "Upper Austria" = "OÖ",
+                                  "Styria" = "ST",
+                                  "Tyrol" = "T",
+                                  "Carinthia" = "K",
+                                  "Salzburg" = "S",
+                                  "Vorarlberg" = "V",
+                                  "Burgenland" = "B"), 
+                   selected = "AT"),
+       dateInput("intervention_date", "Infection date", ymd("2020-03-16")),
+       sliderInput(inputId = "tau", label = "Sliding time window \\(\\tau\\) [days]", 
+                   min = 3,
+                   max = 20,
+                   value = 7),
+       checkboxInput("plot_ages", "Plot AGES \\(\\tau = 13\\) days \\(R_{t,\\tau}\\) estimate for Austria", FALSE),
+       strong("Last update:"),
+       textOutput("last_update")
+      )
+    ),
+    column(8,class = "col-lg-6",
+       plotOutput(outputId = "combinedRplot", height="70vh") %>% withSpinner(color="#4c666f"),
+       
+       tags$h3("Time Delay from Infection to Estimation"),
+       tags$p("The color gradient in the background of the plot shows the estimated cumulative density function of 
+       the time delay from infection date selected to the inclusion in the \\(R_{t,\\tau}\\) estimate."),
+       
+       tags$h3("Source Code and Methods"),
+       tags$p("This tool is open source under an Apache License 2.0 and available on ", 
+              tags$a(href="https://github.com/fvalka/r_estimate", "GitHub"), "."),
+       h3("Data sources"),
+       h4("Case data for Austria"),
+       tags$div(checked=NA,
+                tags$a(href="https://www.sozialministerium.at/Informationen-zum-Coronavirus/Neuartiges-Coronavirus-(2019-nCov).html", 
+                       "Bundesministerium für Soziales, Gesundheit, Pflege und Konsumentenschutz"),
+                tags$br(),
+                ". Aggregated by the ",
+                tags$a(href="https://www.csh.ac.at/", "Complexity Science Hub Vienna"),
+                " and published on ",
+                tags$a(href="https://github.com/osaukh/dashcoch-AT", "GitHub"),
+                ".",
+                tags$br(),
+                "The data as published at the 15:00 CET deadline is used in this dataset."
+       ),
+       h4("AGES \\(R_{t,\\tau}\\) estimate"),
+       tags$div(checked=NA, style="margin-bottom: 3em;",
+                tags$a(href="https://www.ages.at/en/wissen-aktuell/publikationen/epidemiologische-parameter-des-covid19-ausbruchs-oesterreich-2020/", 
+                       "AGES - Österreichische Agentur für Gesundheit und Ernährungssicherheit GmbH")
+       )
+    )   
   )
 )
 
