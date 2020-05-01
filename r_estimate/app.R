@@ -33,7 +33,6 @@ server <- function(input, output) {
   ecdf_incubation_reporting <- ecdf(sim_onset_reporting + sim_incubtion)
   
   ## Reading all data
-  d_ages_R_eff <- read.csv("https://www.ages.at/fileadmin/AGES2015/Wissen-Aktuell/COVID19/R_eff.csv", sep=";", dec=",")
   d_holidays <- read.csv("data/nager-date/publicholiday.AT.2020.csv", fileEncoding="UTF-8-BOM")
   holiday_dates <- ymd(d_holidays$Date)
   
@@ -87,8 +86,8 @@ server <- function(input, output) {
       scale_color_manual(values = colors)
     
     if(plot_ages) {
-      r_plot <- r_plot + geom_line(data = d_ages_R_eff, aes(x=ymd(Datum), y=R_eff, color="AGES"), alpha=0.7) +
-        geom_ribbon(data = d_ages_R_eff, mapping =  aes(x=ymd(Datum), ymin=R_eff_lwr, ymax=R_eff_upr), alpha=0.5, fill="#e76f51")
+      r_plot <- r_plot + geom_line(data = data$ages_estimate, aes(x=ymd(Datum), y=R_eff, color="AGES"), alpha=0.7) +
+        geom_ribbon(data = data$ages_estimate, mapping =  aes(x=ymd(Datum), ymin=R_eff_lwr, ymax=R_eff_upr), alpha=0.5, fill="#e76f51")
     }
     
     colors_weekday <- c("Workday" = "#e19257", "Weekend" = "#ad663d", "Holiday" = "#450f09")
@@ -144,7 +143,7 @@ ui <- fluidPage(
                    min = 3,
                    max = 20,
                    value = 7),
-       checkboxInput("plot_ages", "Plot AGES \\(\\tau = 13\\) days \\(R_{t,\\tau}\\) estimate for Austria", FALSE),
+       checkboxInput("plot_ages", "Plot AGES \\(\\tau = 13\\) days \\(R_{t,\\tau}\\) estimate", FALSE),
        strong("Last update:"),
        textOutput("last_update")
       )
@@ -159,13 +158,18 @@ ui <- fluidPage(
        tags$h3("Source Code and Methods"),
        tags$p("This tool is open source under an Apache License 2.0 and available on ", 
               tags$a(href="https://github.com/fvalka/r_estimate", "GitHub"), "."),
+       tags$p(
+         "Methods used are described in ",
+         tags$a(href="https://fvalka.github.io/r_estimate/r_estimate-methods.pdf", "Estimation and Interactive Visualization of the Time-Varying 
+         Reproduction Number \\(R_t\\) and the Time-Delay from Infection to Estimation"), "."
+       ),
        h3("Data sources"),
        h4("Case data for Austria"),
        tags$div(checked=NA,
                 tags$a(href="https://www.sozialministerium.at/Informationen-zum-Coronavirus/Neuartiges-Coronavirus-(2019-nCov).html", 
                        "Bundesministerium für Soziales, Gesundheit, Pflege und Konsumentenschutz"),
                 tags$br(),
-                ". Aggregated by the ",
+                "aggregated by the",
                 tags$a(href="https://www.csh.ac.at/", "Complexity Science Hub Vienna"),
                 " and published on ",
                 tags$a(href="https://github.com/osaukh/dashcoch-AT", "GitHub"),

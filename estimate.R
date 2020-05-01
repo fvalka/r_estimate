@@ -21,6 +21,7 @@ registerDoParallel(cl)
 ## Reading all data
 d_Austria_per_county <- read.csv("https://raw.githubusercontent.com/osaukh/dashcoch-AT/master/data_AT/covid19_cases_austria.csv", fileEncoding="UTF-8-BOM")
 d_ages_R_eff <- read.csv("https://www.ages.at/fileadmin/AGES2015/Wissen-Aktuell/COVID19/R_eff.csv", sep=";", dec=",")
+d_ages_States <- read.csv("https://www.ages.at/fileadmin/AGES2015/Wissen-Aktuell/COVID19/R_eff_bundesland.csv", sep=";", dec=",")
 
 date_to_weekday <- Vectorize(function(input_date) {
   if (input_date %in% holiday_dates) {
@@ -40,6 +41,19 @@ calculate <- function(state, window_size) {
   library(EnvStats)
   library(pracma)
   library(dplyr)
+  
+  states_ages_map <- c(
+    "W" = "Wien",
+    "NÖ" = "Niederösterreich",
+    "OÖ" = "Oberösterreich",
+    "T" = "Tirol",
+    "K" = "Kärnten",
+    "ST" = "Steiermark",
+    "S" = "Salzburg",
+    "V" = "Vorarlberg",
+    "B" = "Burgenland"
+  )
+  
   # CSH/Github pro Bundesland
   cases <- diff(d_Austria_per_county[,state])
   dates <- ymd(d_Austria_per_county$Date[-1])
@@ -56,7 +70,6 @@ calculate <- function(state, window_size) {
   case_incidence <- as.incidence(cases, dates = dates)
   
   T <- case_incidence$timespan
-  #window_size <- 7
   window_size_offset <- window_size - 1
   t_start <- seq(2, T-window_size_offset) # starting at 2 as conditional on the past observations
   t_end <- t_start + window_size_offset
@@ -84,18 +97,27 @@ calculate <- function(state, window_size) {
                                   method="uncertain_si",
                                   config = config_uncertain)
   
+  # Added state or country wide AGES data
+  if(state == "AT") {
+    d_ages <- d_ages_R_eff
+  } else {
+    d_ages <- d_ages_States[d_ages_States$Bundesland == states_ages_map[state],]
+  }
+  
   return(list(
     state = state,
     dates = dates,
     cases = cases,
     case_incidence = case_incidence,
     window_size = window_size,
-    estimated_R = estimation_result$R
+    estimated_R = estimation_result$R,
+    ages_estimate = d_ages
   ))
 }
 
 data_result = list()
 states <- c("AT", "W", "NÖ", "OÖ", "ST", "T", "K", "S", "V", "B")
+
 
 for (state in states) {
   print(sprintf("Starting calculation for state=%s", state))
