@@ -132,7 +132,7 @@ ui <- fluidPage(
                                   "Vorarlberg" = "V",
                                   "Burgenland" = "B"), 
                    selected = "AT"),
-       dateInput("intervention_date", "Infection date", ymd("2020-03-16")),
+       dateInput("intervention_date", "Infection date", ymd("2020-04-01")),
        sliderInput(inputId = "tau", label = "Sliding time window \\(\\tau\\) [days]", 
                    min = 3,
                    max = 20,
