@@ -41,9 +41,14 @@ server <- function(input, output) {
   })
   
   plotRcombined <- function(data, lockdown_date, plot_ages) {
+    
+    first_date <- head(data$dates, 1)
     last_date <- tail(data$dates, 1)
-    dates_all_plot <- last_date - days(45) + days(seq(0:44))
-    dates_all_plot_extended <- last_date - days(55) + days(seq(0:54))
+    
+    first_plot_date <- first_date + days(7)
+    
+    dates_all_plot <- first_plot_date + days(0:(last_date-first_plot_date))
+    dates_all_plot_extended <- first_date + days(0:((last_date-first_plot_date)+10))
     
     R_with_dates <- data.frame("Date" = data$case_incidence$dates[-(1:data$window_size)], "R_median" = data$estimated_R$`Median(R)`)
     cases_with_dates <- data.frame("Date" = data$dates, "Cases" = data$cases, 
