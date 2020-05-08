@@ -14,8 +14,9 @@ library(dplyr)
 library(shinycssloaders)
 library(doParallel)
 library(parallel)
+require(RcppRoll)
 
-cl <- parallel::makeCluster(16)
+cl <- parallel::makeCluster(8)
 registerDoParallel(cl)
 
 ## Reading all data
@@ -41,6 +42,7 @@ calculate <- function(state, window_size) {
   library(EnvStats)
   library(pracma)
   library(dplyr)
+  require(RcppRoll)
   
   states_ages_map <- c(
     "W" = "Wien",
@@ -59,15 +61,25 @@ calculate <- function(state, window_size) {
   dates <- ymd(d_Austria_per_county$Date[-1])
   
   # Some states have negative cases, these will be applied to the previous day and set to 0
-  for (i in 2:length(cases)) {
-    if(cases[i] < 0){
-      print(sprintf("Warning negative cases found on day %s correcting by applying those corrections to the previous day", dates[i]))
-      cases[i-1] <- cases[i-1] + cases[i]
-      cases[i] <- 0
+  repeat{
+    found_negative_cases <- FALSE
+    for (i in 2:length(cases)) {
+      if(cases[i] < 0){
+        print(sprintf("Warning negative cases found on day %s correcting by applying those corrections to the previous day", dates[i]))
+        cases[i-1] <- cases[i-1] + cases[i]
+        cases[i] <- 0
+        found_negative_cases <- TRUE
+      }
     }
+    if (!found_negative_cases) { break }
   }
   
-  case_incidence <- as.incidence(cases, dates = dates)
+  min_cases_in_window <- 7 # implies a minimum CV of 0.4 of the posterior, see Corie et al. Web Appendix 2.	Choice of time window
+  starting_window <- 15
+  
+  # Select only the data which contains enough cases in a window, starting with an offset 
+  cases_selection <- cumall(append(rep(TRUE, starting_window - 1), roll_sum(cases[starting_window:length(cases)], window_size) >= min_cases_in_window))
+  case_incidence <- as.incidence(cases[cases_selection], dates = dates[cases_selection])
   
   T <- case_incidence$timespan
   window_size_offset <- window_size - 1
@@ -79,6 +91,7 @@ calculate <- function(state, window_size) {
   si_mean_std = 0.153 # calculated from 95% ci from the paper assuming normality by centering and divison by 1.96
   si_std_mean = 2.63
   si_std_std = 0.133 # calculated from 95% ci from the paper assuming normality as above
+  
   
   config_uncertain <- make_config(list(mean_si = si_mean, std_mean_si =si_mean_std,
                                        min_mean_si = si_mean - si_mean_std * 1.96, max_mean_si = si_mean + si_mean_std * 1.96,
