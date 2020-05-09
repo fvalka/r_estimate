@@ -80,6 +80,7 @@ calculate <- function(state, window_size) {
   # Select only the data which contains enough cases in a window, starting with an offset 
   cases_selection <- cumall(append(rep(TRUE, starting_window - 1), roll_sum(cases[starting_window:length(cases)], window_size) >= min_cases_in_window))
   case_incidence <- as.incidence(cases[cases_selection], dates = dates[cases_selection])
+  print(cases_selection)
   
   T <- case_incidence$timespan
   window_size_offset <- window_size - 1

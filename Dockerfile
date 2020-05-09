@@ -20,9 +20,11 @@ RUN R -e "install.packages('lubridate', repos='http://cran.rstudio.com/')"
 RUN R -e "install.packages('ggplot2', repos='http://cran.rstudio.com/')"
 RUN R -e "install.packages('utils', repos='http://cran.rstudio.com/')"
 RUN R -e "install.packages('ggpubr', repos='http://cran.rstudio.com/')"
+RUN R -e "install.packages('ggnewscale', repos='http://cran.rstudio.com/')"
 RUN R -e "install.packages('latex2exp', repos='http://cran.rstudio.com/')"
 RUN R -e "install.packages('pracma', repos='http://cran.rstudio.com/')"
 RUN R -e "install.packages('shinycssloaders', repos='http://cran.rstudio.com/')"
+RUN R -e "install.packages('Cairo', repos='http://cran.rstudio.com/')"
 
 
 # copy the app to the image
