@@ -1,5 +1,5 @@
 # get shiny serves plus tidyverse packages image
-FROM rocker/shiny-verse:latest
+FROM rocker/shiny-verse:3.6.3
 
 # system libraries of general use
 #RUN apt-get update && apt-get install -y \
