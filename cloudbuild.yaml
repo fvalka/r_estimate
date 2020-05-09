@@ -1,7 +1,7 @@
 steps:
   - name: 'gcr.io/kaniko-project/executor:latest'
     args:
-    - --destination=gcr.io/$PROJECT_ID/r-estimate:latest
+    - --destination=eu.gcr.io/$PROJECT_ID/r-estimate:latest
     - --cache=true
     - --cache-ttl=96h
     timeout: 1500s
