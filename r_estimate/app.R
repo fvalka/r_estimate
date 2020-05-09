@@ -67,7 +67,7 @@ server <- function(input, output) {
     
     # Workaround: Setting x causes a warning, but not setting x causes an error
     r_plot <- r_plot + geom_rect(data = delay_ecdf_plot_data, aes(x=Start, xmin=Start, xmax=End, ymin=0, ymax=10, fill=Delay.CDF), color=NA, alpha=1.0) +
-      scale_fill_gradient2(low="white", mid="#F5EBAD", high="#B4EFEE", midpoint=0.5, limits=c(0,1)) +
+      scale_fill_gradient2(low="white", mid="#f9f6d4", high="#a5efee", midpoint=0.5, limits=c(0,1)) +
       labs(fill=TeX("CDF time infection $\\rightarrow$ estimation"))
     
     colors <- c("Own" = "#264653", "AGES" = "#e76f51")
@@ -86,7 +86,7 @@ server <- function(input, output) {
       theme_pubr() +
       theme(plot.title = element_text(hjust = 0.5))+
       labs(fill = "Source") + 
-      labs(caption=TeX("Own estimates of the 50% and 95% credible intervals of $R_{t,\\tau}$ (blue).")) +
+      labs(caption=TeX("50% and 95% credible intervals of own $R_{t,\\tau}$ estimates (blue).")) +
       theme(plot.caption=element_text(hjust=0)) +
       scale_color_manual(values = colors) +
       scale_fill_manual(values = colors)
