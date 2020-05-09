@@ -1,12 +1,11 @@
+require(shiny)
 require(ggplot2)
 require(lubridate)
 require(utils)
 require(ggpubr)
 require(ggnewscale)
 require(latex2exp)
-require(shiny)
 require(pracma)
-require(shinycssloaders)
 require(Cairo)
 options(shiny.usecairo=T)
 
@@ -43,7 +42,7 @@ server <- function(input, output) {
     }
   })
   
-  plotRcombined <- function(data, lockdown_date, plot_ages) {
+  plotRcombined <- function(data, infection_date, plot_ages) {
     
     first_date <- head(data$dates, 1)
     last_date <- tail(data$dates, 1)
@@ -60,15 +59,16 @@ server <- function(input, output) {
     r_plot <- ggplot(data = data$estimated_R, aes(x=data$case_incidence$dates[t_end]))
     
     # Add half a day to obtain the midpoint between t_Start and t_End
-    delay_ecdf <- movavg(ecdf_incubation_reporting(difftime(dates_all_plot_extended, lockdown_date , units = c("days")) + 0.5), 
+    delay_ecdf <- movavg(ecdf_incubation_reporting(difftime(dates_all_plot_extended, infection_date , units = c("days")) + 0.5), 
                          n=data$window_size, type = "s")
     delay_ecdf_plot_data <- data.frame("Start" = dates_all_plot_extended, "End" = dates_all_plot_extended + days(1), 
                                        "Delay CDF" = delay_ecdf)
     
+    
     # Workaround: Setting x causes a warning, but not setting x causes an error
     r_plot <- r_plot + geom_rect(data = delay_ecdf_plot_data, aes(x=Start, xmin=Start, xmax=End, ymin=0, ymax=10, fill=Delay.CDF), color=NA, alpha=1.0) +
       scale_fill_gradient2(low="white", mid="#f9f6d4", high="#a5efee", midpoint=0.5, limits=c(0,1)) +
-      labs(fill=TeX("CDF time infection $\\rightarrow$ estimation"))
+      labs(fill=TeX("time-delay CDF"))
     
     colors <- c("Own" = "#264653", "AGES" = "#e76f51")
     
@@ -77,8 +77,8 @@ server <- function(input, output) {
       geom_ribbon(aes(ymin=`Quantile.0.25(R)`, ymax=`Quantile.0.75(R)`, fill="Own"), alpha=0.4) + 
       geom_ribbon(aes(ymin=`Quantile.0.025(R)`, ymax=`Quantile.0.975(R)`), alpha=0.5, fill="#5f7e87") + 
       geom_hline(yintercept=1, linetype="dashed", color = "black", size=0.5) +
-      geom_vline(xintercept = lockdown_date, color="#d66449", alpha=0.3, size=2) +
-      annotate(geom = "text", x = lockdown_date, y = 0.1, label="Infection", color="#822c20", hjust = 0, vjust=-0.4, angle = 90) +
+      geom_vline(xintercept = infection_date, color="#d66449", alpha=0.3, size=2) +
+      annotate(geom = "text", x = infection_date, y = 3.0, label="Infection", color="#822c20", hjust = 0.5, vjust=-0.4, angle = 90) +
       xlab("Date") +
       ylab(TeX(paste("$R_{t,\\tau}$ with sliding time window $\\,\\tau =", data$window_size, "$ days"))) +
       coord_cartesian(ylim = c(0, 3.5), xlim=c(head(dates_all_plot, 1), tail(dates_all_plot, 1))) +
@@ -86,7 +86,6 @@ server <- function(input, output) {
       theme_pubr() +
       theme(plot.title = element_text(hjust = 0.5))+
       labs(fill = "Source") + 
-      labs(caption=TeX("50% and 95% credible intervals of own $R_{t,\\tau}$ estimates (blue).")) +
       theme(plot.caption=element_text(hjust=0)) +
       scale_color_manual(values = colors) +
       scale_fill_manual(values = colors)
@@ -95,6 +94,22 @@ server <- function(input, output) {
       r_plot <- r_plot + geom_line(data = data$ages_estimate, aes(x=ymd(Datum), y=R_eff), alpha=0.7, color="#e76f51") +
         geom_ribbon(data = data$ages_estimate, mapping =  aes(x=ymd(Datum), ymin=R_eff_lwr, ymax=R_eff_upr, fill="AGES"), alpha=0.5)
     }
+    
+    # add time-delay labeling
+    time_delay_arrow_coordinates <- data.frame("Start" = delay_ecdf_plot_data$Start[min(which(delay_ecdf_plot_data$Delay.CDF >= 0.25))], 
+                                               "Mid" = delay_ecdf_plot_data$Start[min(which(delay_ecdf_plot_data$Delay.CDF > 0.5))], 
+                                               "End" = delay_ecdf_plot_data$End[min(which(delay_ecdf_plot_data$Delay.CDF >= 0.75))])
+    
+    r_plot <- r_plot +
+      annotate(geom="text", x=time_delay_arrow_coordinates$Mid, y=3.0, 
+               label="atop(inclusion,\"in estimate\")", color="#822c20", 
+               hjust = 0.5, vjust=0.5, alpha=0.6, parse=TRUE) +
+      geom_segment(data = time_delay_arrow_coordinates,
+                   aes(x=Start, 
+                       xend=End, 
+                       y=3.0, yend=3.0), 
+                   size = 0.5, colour="#822c20", alpha=0.4,
+                   arrow = arrow(length = unit(0.3, "cm")))
     
     colors_weekday <- c("Workday" = "#e19257", "Weekend" = "#ad663d", "Holiday" = "#450f09")
     cases_plot <- ggbarplot(cases_with_dates, x="Date", y="Cases", fill="Weekday", alpha=0.6, color = NA) + 
@@ -118,78 +133,3 @@ server <- function(input, output) {
     format(tail(data$dates, 1), format="%Y-%m-%d")
   })
 }
-
-ui <- fluidPage(
-  withMathJax(),
-  fluidRow(
-    column(12, class = "col-lg-6 col-lg-offset-4", style="margin-bottom: 1em; text-align:center;",
-      titlePanel("Estimation of the Time-Varying Reproduction Number \\(R_t\\) and the Time-Delay from 
-          Infection to Estimation in Austria"
-      )
-    )
-  ),
-  fluidRow(
-    column(4, class = "col-lg-2 col-lg-offset-2", style="",
-           h3("Settings"),
-      tags$div(style="background-color: #F8F8F8; border: 1px solid #95b2b7; padding:1em; padding-bottom:2em;",
-       selectInput("county", "State", 
-                   choices = list("Whole country" = "AT", 
-                                  "Vienna" = "W",
-                                  "Lower Austria" = "NÖ",
-                                  "Upper Austria" = "OÖ",
-                                  "Styria" = "ST",
-                                  "Tyrol" = "T",
-                                  "Carinthia" = "K",
-                                  "Salzburg" = "S",
-                                  "Vorarlberg" = "V",
-                                  "Burgenland" = "B"), 
-                   selected = "AT"),
-       dateInput("intervention_date", "Infection date", ymd("2020-04-01")),
-       sliderInput(inputId = "tau", label = "Sliding time window \\(\\tau\\) [days]", 
-                   min = 3,
-                   max = 20,
-                   value = 7),
-       checkboxInput("plot_ages", "Plot AGES \\(\\tau = 13\\) days \\(R_{t,\\tau}\\) estimate", FALSE),
-       strong("Last update:"),
-       textOutput("last_update")
-      )
-    ),
-    column(8,class = "col-lg-6",
-       plotOutput(outputId = "combinedRplot", height="70vh") %>% withSpinner(color="#4c666f"),
-       
-       tags$h3("Time Delay from Infection to Estimation"),
-       tags$p("The color gradient in the background of the plot shows the estimated cumulative density function of 
-       the time delay from infection date selected to the inclusion in the \\(R_{t,\\tau}\\) estimate."),
-       
-       tags$h3("Source Code and Methods"),
-       tags$p("This tool is open source under an Apache License 2.0 and available on ", 
-              tags$a(href="https://github.com/fvalka/r_estimate", "GitHub"), "."),
-       tags$p(
-         "Methods used are described in ",
-         tags$a(href="https://fvalka.github.io/r_estimate/r_estimate-methods.pdf", "Estimation and Interactive Visualization of the Time-Varying 
-         Reproduction Number \\(R_t\\) and the Time-Delay from Infection to Estimation"), "."
-       ),
-       h3("Data sources"),
-       h4("Case data for Austria"),
-       tags$div(checked=NA,
-                tags$a(href="https://www.sozialministerium.at/Informationen-zum-Coronavirus/Neuartiges-Coronavirus-(2019-nCov).html", 
-                       "Bundesministerium für Soziales, Gesundheit, Pflege und Konsumentenschutz"),
-                tags$br(),
-                "aggregated by the",
-                tags$a(href="https://www.csh.ac.at/", "Complexity Science Hub Vienna"),
-                " and published on ",
-                tags$a(href="https://github.com/osaukh/dashcoch-AT", "GitHub"),
-                ".",
-                tags$br(),
-                "The data as published at the 15:00 CET deadline is used in this dataset."
-       ),
-       h4("AGES \\(R_{t,\\tau}\\) estimate"),
-       tags$div(checked=NA, style="margin-bottom: 3em;",
-                tags$a(href="https://www.ages.at/en/wissen-aktuell/publikationen/epidemiologische-parameter-des-covid19-ausbruchs-oesterreich-2020/", 
-                       "AGES - Österreichische Agentur für Gesundheit und Ernährungssicherheit GmbH")
-       )
-    )   
-  )
-)
-
-shinyApp(ui = ui, server = server)

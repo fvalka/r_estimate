@@ -77,10 +77,14 @@ calculate <- function(state, window_size) {
   min_cases_in_window <- 7 # implies a minimum CV of 0.4 of the posterior, see Corie et al. Web Appendix 2.	Choice of time window
   starting_window <- 15
   
+  
   # Select only the data which contains enough cases in a window, starting with an offset 
-  cases_selection <- cumall(append(rep(TRUE, starting_window - 1), roll_sum(cases[starting_window:length(cases)], window_size) >= min_cases_in_window))
-  case_incidence <- as.incidence(cases[cases_selection], dates = dates[cases_selection])
-  print(cases_selection)
+  left_tail_matches <- cumany(roll_sum(cases, window_size, fill=min_cases_in_window, align="left") >= min_cases_in_window)
+  right_tail_matches <- roll_sum(cases, window_size, fill=min_cases_in_window, align="right") >= min_cases_in_window
+  right_tail_matches[1:starting_window] <- TRUE
+  filter_min_window_size <- left_tail_matches & right_tail_matches
+  
+  case_incidence <- as.incidence(cases[filter_min_window_size], dates = dates[filter_min_window_size])
   
   T <- case_incidence$timespan
   window_size_offset <- window_size - 1
