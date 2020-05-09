@@ -7,6 +7,7 @@ steps:
       - '-t'
       - 'eu.gcr.io/$PROJECT_ID/r-estimate/$BRANCH_NAME/aviatorsbot-scala:$SHORT_SHA'
       - '.'
+    timeout: 1500s
 images:
   - 'eu.gcr.io/$PROJECT_ID/r-estimate:latest'
   - 'eu.gcr.io/$PROJECT_ID/r-estimate/$BRANCH_NAME/aviatorsbot-scala:$SHORT_SHA'
