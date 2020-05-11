@@ -111,7 +111,7 @@ server <- function(input, output) {
       xlab("Reporting date") +
       ylab("New cases per day") + 
       coord_cartesian(xlim = c(head(dates_all_plot, 1), tail(dates_all_plot, 1))) +
-      scale_fill_manual(values = colors_weekday)
+      scale_fill_manual(values = colors_weekday, limits=c("Workday", "Weekend", "Holiday"))
     
     return(ggarrange(r_plot, cases_plot, ncol = 1, nrow = 2, heights = c(2, 0.9), align = "v"))
   }
