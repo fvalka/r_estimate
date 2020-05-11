@@ -11,10 +11,16 @@ options(shiny.usecairo=T)
 
 server <- function(input, output) {
   ecdf_incubation_reporting_precalculated <- readRDS("data/time-delay/infection_reporting_cdf.rds")
+  ecdf_incubation_estimation_precalculated <- readRDS("data/time-delay/infection_estimation_cdf.rds")
   
   ecdf_incubation_reporting <- Vectorize(function(t) {
     idx <- findInterval(t, ecdf_incubation_reporting_precalculated$t, all.inside=TRUE)
     return(ecdf_incubation_reporting_precalculated$infection_reporting_cdf[idx])
+  })
+  
+  ecdf_incubation_estimation <- Vectorize(function(t, tau) {
+    idx <- findInterval(t, ecdf_incubation_estimation_precalculated$t, all.inside=TRUE)
+    return(ecdf_incubation_estimation_precalculated[[sprintf("tau_%d", tau)]][idx])
   })
   
   ## Reading all data
@@ -31,7 +37,7 @@ server <- function(input, output) {
     }
   })
   
-  plotRcombined <- function(data, infection_date, plot_ages) {
+  plotRcombined <- function(data, infection_date, plot_ages, tau) {
     
     first_date <- head(data$dates, 1)
     last_date <- tail(data$dates, 1)
@@ -47,14 +53,14 @@ server <- function(input, output) {
     r_plot <- ggplot(data = data$estimated_R, aes(x=data$case_incidence$dates[t_end]))
     
     # Add half a day to obtain the midpoint between t_Start and t_End
-    delay_ecdf <- movavg(ecdf_incubation_reporting(difftime(dates_all_plot_extended, infection_date , units = c("days")) + 0.5), 
-                         n=data$window_size, type = "s")
+    delay_ecdf <- ecdf_incubation_estimation(difftime(dates_all_plot_extended, infection_date , units = c("days")), tau)
     delay_ecdf_plot_data <- data.frame("Start" = dates_all_plot_extended, "End" = dates_all_plot_extended + days(1), 
                                        "Delay CDF" = delay_ecdf)
     
     
     # Workaround: Setting x causes a warning, but not setting x causes an error
-    r_plot <- r_plot + geom_rect(data = delay_ecdf_plot_data, aes(x=Start, xmin=Start, xmax=End, ymin=0, ymax=10, fill=Delay.CDF), color=NA, alpha=1.0) +
+    r_plot <- r_plot + geom_rect(data = delay_ecdf_plot_data, aes(x=Start, xmin=Start, xmax=End, ymin=0, ymax=10, fill=Delay.CDF), 
+                                 color=NA, alpha=1.0) +
       scale_fill_gradient2(low="white", mid="#f9f6d4", high="#a5efee", midpoint=0.5, limits=c(0,1)) +
       labs(fill=TeX("time-delay CDF"))
     
@@ -110,11 +116,48 @@ server <- function(input, output) {
     return(ggarrange(r_plot, cases_plot, ncol = 1, nrow = 2, heights = c(2, 0.9), align = "v"))
   }
   
+  plotEcdfs <- function(tau) {
+    t <- seq(0, 30)
+    t_fine <- seq(0,30, 0.1)
+    
+    # Obtained from the supplementary appendix of 
+    # .Zhang, J. et al. Evolving epidemiology and transmission dynamics of coronavirus disease 2019 outside Hubei province, China: 
+    # a descriptive and modelling study. The Lancet Infectious Diseases 0, (2020).
+    ecdf_infection_onset <- pgamma(t_fine, shape = 4.23, rate = 0.81) # incubation period
+    
+    ecdf_incubation_estimation_plot <- data.frame("t"=t, 
+                                 "infection_estimation"=ecdf_incubation_estimation(t, tau))
+    ecdfs_for_plot <- data.frame("t" =t_fine,
+                                "infection_onset" = ecdf_infection_onset,
+                                "infection_reporting"=ecdf_incubation_reporting(t_fine))
+    
+    colors <- c("onset" = "#c9b36a", "reporting" = "#e76f51", "estimation" = "#66aaa8")
+    
+    plot_result <- ggplot(data=ecdfs_for_plot, aes(x=t)) +
+      geom_line(aes(x=t_fine, y=infection_onset, color="onset"), size=0.9, alpha=0.7) +
+      geom_line(aes(x=t_fine, y=infection_reporting, color="reporting"), size=0.9, alpha=0.7) +
+      geom_line(data=ecdf_incubation_estimation_plot, 
+                aes(x=t, y=infection_estimation, color="estimation"), size=0.9, alpha=0.7) +
+      geom_hline(yintercept=0.25, linetype="dashed", color = "black", size=0.5, alpha=0.5) +
+      geom_hline(yintercept=0.75, linetype="dashed", color = "black", size=0.5, alpha=0.5) +
+      theme_pubr() +
+      xlab("Days after infection") +
+      ylab("Pr") +
+      labs(color = "Time-Delay infection to") +
+      scale_color_manual(values = colors, limits=c("onset", "reporting", "estimation"))
+    
+    return(plot_result)
+  }
+  
   data_result <- readRDS("data/data.rds")
   
   output$combinedRplot <- renderPlot({
     data <- data_result[[input$county]][[input$tau - 2]]
-    plotRcombined(data, input$intervention_date, input$plot_ages)
+    plotRcombined(data, input$intervention_date, input$plot_ages, input$tau)
+  })
+  
+  output$ecdfsPlot <- renderPlot({
+    plotEcdfs(input$tau)
   })
   
   output$last_update <- renderText({

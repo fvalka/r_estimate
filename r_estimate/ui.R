@@ -53,7 +53,16 @@ ui <- fluidPage(theme="yeti.css",
            
            tags$h3("Time Delay from Infection to Estimation"),
            tags$p("The color gradient in the background of the plot shows the estimated cumulative density function of 
-           the time delay from infection date selected to the inclusion in the \\(R_{t,\\tau}\\) estimate."),
+           the time delay from the infection date selected in the settings to the inclusion in the \\(R_{t,\\tau}\\) estimate."),
+           
+           tags$h4("Cumulative Distribution Function from Infection to Estimation"),
+           tags$p("This figure shows the estimated cumulative distribution functions for the time delays from
+           infection to onset, reporting, and estimation: 
+                  \\(t_{infection,onset}\\) (yellow), \\(t_{infection,reporting}\\) (red), 
+                  and \\(t_{infection,estimation}\\) (blue) for the currently selected value of \\(\\tau\\)."),
+           plotOutput(outputId = "ecdfsPlot") %>% withSpinner(color="#4c666f"),
+           tags$p("In this figure the 0.25 and 0.75 quantiles are also marked with dashed lines, signifying 
+                  the 50% credible interval."),
            
            tags$h3("Source Code and Methods"),
            tags$p("This tool is open source under an Apache License 2.0 and available on ", 
