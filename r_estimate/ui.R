@@ -10,12 +10,12 @@ require(shinycssloaders)
 require(Cairo)
 options(shiny.usecairo=T)
 
-ui <- fluidPage(
+ui <- fluidPage(theme="yeti.css",
   withMathJax(),
   fluidRow(
     column(12, class = "col-lg-6 col-lg-offset-4", style="margin-bottom: 1em; text-align:center;",
-           titlePanel("Estimation of the Time-Varying Reproduction Number \\(R_t\\) and the Time-Delay from 
-          Infection to Estimation in Austria"
+           titlePanel("Investigation and Visualization of the Time-Delays Inherent to the Estimation of the Time-Varying 
+           Reproduction Number \\(R_t\\) as Published for Austria"
            )
     )
   ),
@@ -63,7 +63,7 @@ ui <- fluidPage(
              tags$a(href="https://fvalka.github.io/r_estimate/r_estimate-methods.pdf", "Estimation and Interactive Visualization of the Time-Varying 
          Reproduction Number \\(R_t\\) and the Time-Delay from Infection to Estimation"), "."
            ),
-           h3("Data sources"),
+           h3("Data Sources"),
            h4("Case data for Austria"),
            tags$div(checked=NA,
                     tags$a(href="https://www.sozialministerium.at/Informationen-zum-Coronavirus/Neuartiges-Coronavirus-(2019-nCov).html", 

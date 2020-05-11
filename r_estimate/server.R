@@ -10,23 +10,12 @@ require(Cairo)
 options(shiny.usecairo=T)
 
 server <- function(input, output) {
+  ecdf_incubation_reporting_precalculated <- readRDS("data/time-delay/infection_reporting_cdf.rds")
   
-  ## Simulate time delay distributions
-  print("Computing ECDF")
-  simSize <- 1e6
-  
-  # Obtained from the supplementary appendix of 
-  # .Zhang, J. et al. Evolving epidemiology and transmission dynamics of coronavirus disease 2019 outside Hubei province, China: 
-  # a descriptive and modelling study. The Lancet Infectious Diseases 0, (2020).
-  # Second time period Jan 28 – Feb 17
-  sim_onset_reporting <- rgamma(simSize, shape = 3.18, rate = 0.59) # onset-to-reporting distribution
-  
-  # Obtained from the supplementary appendix of 
-  # .Zhang, J. et al. Evolving epidemiology and transmission dynamics of coronavirus disease 2019 outside Hubei province, China: 
-  # a descriptive and modelling study. The Lancet Infectious Diseases 0, (2020).
-  sim_incubtion <- rgamma(simSize, shape = 4.23, rate = 0.81) # incubation period
-  
-  ecdf_incubation_reporting <- ecdf(sim_onset_reporting + sim_incubtion)
+  ecdf_incubation_reporting <- Vectorize(function(t) {
+    idx <- findInterval(t, ecdf_incubation_reporting_precalculated$t, all.inside=TRUE)
+    return(ecdf_incubation_reporting_precalculated$infection_reporting_cdf[idx])
+  })
   
   ## Reading all data
   d_holidays <- read.csv("data/nager-date/publicholiday.AT.2020.csv", fileEncoding="UTF-8-BOM")
@@ -78,7 +67,7 @@ server <- function(input, output) {
       geom_hline(yintercept=1, linetype="dashed", color = "black", size=0.5) +
       geom_vline(xintercept = infection_date, color="#d66449", alpha=0.3, size=2) +
       annotate(geom = "text", x = infection_date, y = 3.0, label="Infection", color="#822c20", hjust = 0.5, vjust=-0.4, angle = 90) +
-      xlab("Date") +
+      xlab("Reporting date") +
       ylab(TeX(paste("$R_{t,\\tau}$ with sliding time window $\\,\\tau =", data$window_size, "$ days"))) +
       coord_cartesian(ylim = c(0, 3.5), xlim=c(head(dates_all_plot, 1), tail(dates_all_plot, 1))) +
       grid() +
@@ -113,6 +102,7 @@ server <- function(input, output) {
     colors_weekday <- c("Workday" = "#e19257", "Weekend" = "#ad663d", "Holiday" = "#450f09")
     cases_plot <- ggbarplot(cases_with_dates, x="Date", y="Cases", fill="Weekday", alpha=0.6, color = NA) + 
       labs(fill = "") +
+      xlab("Reporting date") +
       ylab("New cases per day") + 
       coord_cartesian(xlim = c(head(dates_all_plot, 1), tail(dates_all_plot, 1))) +
       scale_fill_manual(values = colors_weekday)
