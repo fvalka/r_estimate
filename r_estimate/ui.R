@@ -47,7 +47,8 @@ ui <- fluidPage(theme="yeti.css",
     ),
     column(8,class = "col-lg-6",
            plotOutput(outputId = "combinedRplot", height="70vh") %>% withSpinner(color="#4c666f"),
-           tags$p("Own estimates of \\(R_{t,\\tau}\\) are shown as 50% (blue) and 95% (dark blue) credible intervals. The cumulative distribution function 
+           tags$p("Own estimates of \\(R_{t,\\tau}\\) are shown as 50% (blue) and 95% (dark blue) credible intervals. 
+           The cumulative distribution function 
            of the time-delay from the selected infection date to estimation is shown in the color gradient background (yellow to blue), 
            while the red arrow shows the 50% credible interval of the time-delay CDF."),
            
@@ -60,9 +61,13 @@ ui <- fluidPage(theme="yeti.css",
            infection to onset, reporting, and estimation: 
                   \\(t_{infection,onset}\\) (yellow), \\(t_{infection,reporting}\\) (red), 
                   and \\(t_{infection,estimation}\\) (blue) for the currently selected value of \\(\\tau\\)."),
-           plotOutput(outputId = "ecdfsPlot") %>% withSpinner(color="#4c666f"),
+           tags$div(style="margin-bottom: 1em; margin-top: 1em;",
+              plotOutput(outputId = "ecdfsPlot") %>% withSpinner(color="#4c666f")
+           ),
            tags$p("In this figure the 0.25 and 0.75 quantiles are also marked with dashed lines, signifying 
                   the 50% credible interval."),
+           tags$p("The estimates for \\(t_{infection,onset}\\) and \\(t_{infection,reporting}\\) are based upon data published in
+                  China. For details, and the exact parameters please refer to the methods paper below."),
            
            tags$h3("Source Code and Methods"),
            tags$p("This tool is open source under an Apache License 2.0 and available on ", 

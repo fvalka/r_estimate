@@ -62,7 +62,7 @@ server <- function(input, output) {
     r_plot <- r_plot + geom_rect(data = delay_ecdf_plot_data, aes(x=Start, xmin=Start, xmax=End, ymin=0, ymax=10, fill=Delay.CDF), 
                                  color=NA, alpha=1.0) +
       scale_fill_gradient2(low="white", mid="#f9f6d4", high="#a5efee", midpoint=0.5, limits=c(0,1)) +
-      labs(fill=TeX("time-delay CDF"))
+      labs(fill=TeX("Time-delay CDF"))
     
     colors <- c("Own" = "#264653", "AGES" = "#e76f51")
     
@@ -143,7 +143,7 @@ server <- function(input, output) {
       theme_pubr() +
       xlab("Days after infection") +
       ylab("Pr") +
-      labs(color = "Time-Delay infection to") +
+      labs(color = "Infection to") +
       scale_color_manual(values = colors, limits=c("onset", "reporting", "estimation"))
     
     return(plot_result)
