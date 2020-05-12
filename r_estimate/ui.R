@@ -69,6 +69,13 @@ ui <- fluidPage(theme="yeti.css",
            tags$p("The estimates for \\(t_{infection,onset}\\) and \\(t_{infection,reporting}\\) are based upon data published in
                   China. For details, and the exact parameters please refer to the methods paper below."),
            
+           tags$h3("Latest \\(R_{t,\\tau}\\) Estimate"),
+           tags$p("Credible intervals for the \\(R_{t,\\tau}\\) estimate are obtained from the equal-tailed intervals.
+                  Given the z-quantile \\(q_z\\), the 95% credible interval is obtained from the 95% equal-tailed interval
+                  \\(I_{0.05} = \\left[q_{0.025}, q_{0.975}\\right]\\)."),
+           tags$div(style="display: flex; justify-content: center;",
+                    tableOutput('testTbl')),
+           
            tags$h3("Source Code and Methods"),
            tags$p("This tool is open source under an Apache License 2.0 and available on ", 
                   tags$a(href="https://github.com/fvalka/r_estimate", "GitHub"), "."),

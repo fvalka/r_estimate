@@ -149,6 +149,15 @@ server <- function(input, output) {
     return(plot_result)
   }
   
+  tableLatestR <- function(data) {
+    row <- tail(data$estimated_R, 1)
+    formated_result <- data.frame(
+      "Credible Interval" = c("50%", "95%"),
+      "Lower" = c(row$`Quantile.0.25(R)`, row$`Quantile.0.025(R)`),
+      "Upper" = c(row$`Quantile.0.75(R)`, row$`Quantile.0.975(R)`))
+    return(formated_result)
+  }
+  
   data_result <- readRDS("data/data.rds")
   
   output$combinedRplot <- renderPlot({
@@ -164,4 +173,9 @@ server <- function(input, output) {
     data <- data_result[[input$county]][[input$tau - 2]]
     format(tail(data$dates, 1), format="%Y-%m-%d")
   })
+  
+  output$testTbl <- renderTable({ 
+    data <- data_result[[input$county]][[input$tau - 2]]
+    tableLatestR(data)
+  }, digits = 2)  
 }
