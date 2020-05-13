@@ -74,7 +74,7 @@ calculate <- function(state, window_size) {
     if (!found_negative_cases) { break }
   }
   
-  min_cases_in_window <- 7 # implies a minimum CV of 0.4 of the posterior, see Corie et al. Web Appendix 2.	Choice of time window
+  min_cases_in_window <- 12 # implies a maximum CV of 0.3 of the posterior, see Corie et al. Web Appendix 2.	Choice of time window
   starting_window <- 15
   
   
