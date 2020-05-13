@@ -133,7 +133,16 @@ server <- function(input, output) {
     
     colors <- c("onset" = "#c9b36a", "reporting" = "#e76f51", "estimation" = "#66aaa8")
     
-    plot_result <- ggplot(data=ecdfs_for_plot, aes(x=t)) +
+    # Add half a day to obtain the midpoint between t_Start and t_End
+    delay_ecdf <- ecdf_incubation_estimation(t, tau)
+    delay_ecdf_plot_data <- data.frame("Start" = t, "End" = t + 1, 
+                                       "Delay CDF" = delay_ecdf)
+    
+    plot_result <- ggplot(data=ecdfs_for_plot, aes(x=t))+ 
+      geom_rect(data = delay_ecdf_plot_data, aes(x=Start, xmin=Start, xmax=End, ymin=0, ymax=1, fill=Delay.CDF), color=NA, alpha=1.0) +
+      geom_ribbon(data=ecdf_incubation_estimation_plot, aes(ymin=infection_estimation, ymax=1), fill="white", alpha=1.0) + 
+      scale_fill_gradient2(low="white", mid="#f9f6d4", high="#a5efee", midpoint=0.5, limits=c(0,1)) +
+      labs(fill=TeX("Time-delay CDF")) +
       geom_line(aes(x=t_fine, y=infection_onset, color="onset"), size=0.9, alpha=0.7) +
       geom_line(aes(x=t_fine, y=infection_reporting, color="reporting"), size=0.9, alpha=0.7) +
       geom_line(data=ecdf_incubation_estimation_plot, 
