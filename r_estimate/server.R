@@ -134,8 +134,8 @@ server <- function(input, output) {
     colors <- c("onset" = "#c9b36a", "reporting" = "#e76f51", "estimation" = "#66aaa8")
     
     # Add half a day to obtain the midpoint between t_Start and t_End
-    delay_ecdf <- ecdf_incubation_estimation(t, tau)
-    delay_ecdf_plot_data <- data.frame("Start" = t, "End" = t + 1, 
+    delay_ecdf <- ecdf_incubation_estimation(t[1:(length(t)-1)], tau)
+    delay_ecdf_plot_data <- data.frame("Start" = t[1:(length(t)-1)], "End" = t[1:(length(t)-1)] + 1, 
                                        "Delay CDF" = delay_ecdf)
     
     plot_result <- ggplot(data=ecdfs_for_plot, aes(x=t))+ 
