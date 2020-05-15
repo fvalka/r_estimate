@@ -11,6 +11,11 @@ require(Cairo)
 options(shiny.usecairo=T)
 
 ui <- fluidPage(theme="yeti.css",
+  tags$head(
+    tags$meta(property="og:title", content="Investigation and Visualization of the Time-Delays Inherent to the Estimation of the Time-Varying 
+           Reproduction Number R(t) as Published for Austria"),
+    tags$meta(property="og:image", content="social-media-preview.png")
+  ),
   withMathJax(),
   fluidRow(
     column(12, class = "col-lg-6 col-lg-offset-4", style="margin-bottom: 1em; text-align:center;",
