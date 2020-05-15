@@ -66,13 +66,13 @@ ui <- fluidPage(theme="yeti.css",
            tags$p("The color gradient in the background of the plot shows the estimated cumulative density function of 
            the time delay from the infection date selected in the settings to the inclusion in the \\(R_{t,\\tau}\\) estimate."),
            
-           tags$h4("Different Time Delays and Sources"),
+           tags$h4("Different Time Delays and Sources of the Time Delays"),
            tags$p("We consider three different time estimates which are involved in the estimation of the time-varying reproduction number \\(R_t\\)."),
            tags$p("The first one is the time-delay from infection to the onset of symptoms, also called the incubation time, \\(t_{infection,onset}\\).
                   Estimates for the Gamma distribution as published in China are used for this. For details and sources please refer to the",
                   tags$a(href="https://fvalka.github.io/r_estimate/r_estimate-methods.pdf", "methods paper.")),
            
-           tags$p("The second time-delay we consider is the the time-delay from symptom onset to official reporting, \\(t_{onset,reporting}\\).
+           tags$p("The second time-delay we consider is the time-delay from symptom onset to official reporting, \\(t_{onset,reporting}\\).
                   For this time-delay also an estimate for it's Gamma distribution parameters from China is used. For details and sources please also refer to the",
                   tags$a(href="https://fvalka.github.io/r_estimate/r_estimate-methods.pdf", "methods paper.")),
            
@@ -110,14 +110,14 @@ ui <- fluidPage(theme="yeti.css",
                   tested for each known infection at different times during the pandemic and also testing strategies might have changed during the course of the spread.
                   This introduces a bias in the \\(R_{t,\\tau}\\) estimation during times of changing ascertainment."),
            tags$h4("The Role of Time-Delays"),
-           tags$p("Time-delays play a key role when we wan't to consider whether the effects of a change, which was implemented at a specific date is already visible
+           tags$p("Time-delays play a key role when we want to consider whether the effects of a change, which was implemented at a specific date is already visible
                   in the resulting estimate of the time-varying reproduction number \\(R_{t,\\tau}\\)."),
            tags$p("This delay is also of integral importance when we consider the problem of changing interventions from the viewpoint of control theory where any 
                   additional time-delay between the output (the changes in transmission as reflected in the \\(R_{t,\\tau}\\) estimate) and the controller (us) can introduce
                   instability into an otherwise stable control-loop."),
            tags$p("Our approach here is basically the inverse of a nowcasting estimate, 
                   which was chosen since the official estimates for Austria are published like this and also because it makes the uncertaintiy in the time-delay clearer.
-                  And allows the user to chose his own probability cut-off. "),
+                  And allows the user to choose his own probability cut-off. "),
            
            tags$h3("Source Code and Methods"),
            tags$p("This tool is open source under an Apache License 2.0 and available on ", 
