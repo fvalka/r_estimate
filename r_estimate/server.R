@@ -61,7 +61,8 @@ server <- function(input, output) {
     # Workaround: Setting x causes a warning, but not setting x causes an error
     r_plot <- r_plot + geom_rect(data = delay_ecdf_plot_data, aes(x=Start, xmin=Start, xmax=End, ymin=0, ymax=10, fill=Delay.CDF), 
                                  color=NA, alpha=1.0) +
-      scale_fill_gradient2(low="white", mid="#f9f6d4", high="#a5efee", midpoint=0.5, limits=c(0,1)) +
+      scale_fill_gradient2(low="white", mid="#f9f6d4", high="#a5efee", midpoint=0.5, limits=c(0,1),
+                           guide=guide_colourbar(label.theme = element_text(angle = 90, size=6), label.hjust = 0.5, label.vjust = 0.5)) +
       labs(fill=TeX("Time-delay CDF"))
     
     colors <- c("Own" = "#264653", "AGES" = "#e76f51")
@@ -141,7 +142,8 @@ server <- function(input, output) {
     plot_result <- ggplot(data=ecdfs_for_plot, aes(x=t))+ 
       geom_rect(data = delay_ecdf_plot_data, aes(x=Start, xmin=Start, xmax=End, ymin=0, ymax=1, fill=Delay.CDF), color=NA, alpha=1.0) +
       geom_ribbon(data=ecdf_incubation_estimation_plot, aes(ymin=infection_estimation, ymax=1), fill="white", alpha=1.0) + 
-      scale_fill_gradient2(low="white", mid="#f9f6d4", high="#a5efee", midpoint=0.5, limits=c(0,1)) +
+      scale_fill_gradient2(low="white", mid="#f9f6d4", high="#a5efee", midpoint=0.5, limits=c(0,1),
+                           guide=guide_colourbar(label.theme = element_text(angle = 90, size=6), label.hjust = 0.5, label.vjust = 0.5)) +
       labs(fill=TeX("Time-delay CDF")) +
       geom_line(aes(x=t_fine, y=infection_onset, color="onset"), size=0.9, alpha=0.7) +
       geom_line(aes(x=t_fine, y=infection_reporting, color="reporting"), size=0.9, alpha=0.7) +
