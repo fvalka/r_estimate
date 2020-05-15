@@ -14,7 +14,7 @@ ui <- fluidPage(theme="yeti.css",
   tags$head(
     tags$meta(property="og:title", content="Investigation and Visualization of the Time-Delays Inherent to the Estimation of the Time-Varying 
            Reproduction Number R(t) as Published for Austria"),
-    tags$meta(property="og:image", content="social-media-preview.png")
+    tags$meta(property="og:image", content="https://covid19-r.com/social-media-preview.png")
   ),
   withMathJax(),
   fluidRow(
