@@ -141,7 +141,7 @@ ui <- fluidPage(theme="yeti.css",
                     tags$br(),
                     "The data as published at the 15:00 CET deadline is used in this dataset."
            ),
-           h4("AGES \\(R_{t,\\tau}\\) estimate"),
+           h4("AGES, TU Graz \\(R_{t,\\tau}\\) estimate"),
            tags$div(checked=NA, style="margin-bottom: 3em;",
                     tags$a(href="https://www.ages.at/en/wissen-aktuell/publikationen/epidemiologische-parameter-des-covid19-ausbruchs-oesterreich-2020/", 
                            "AGES - Österreichische Agentur für Gesundheit und Ernährungssicherheit GmbH")
