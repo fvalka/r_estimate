@@ -2,6 +2,9 @@
 
 R shiny app to visualize and investigate the different time delays in the estimates of the time-varying reproduction number, which is currently being published for Austria. 
 
+## Example Output
+![Example Output](https://covid19-r.com/social-media-preview.png)
+
 Available on the web at: [covid19-r.com](https://covid19-r.com)
 
 For further details on the methods used please refer to the current draf of 
