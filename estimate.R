@@ -82,6 +82,7 @@ calculate <- function(state, window_size) {
   left_tail_matches <- cumany(roll_sum(cases, window_size, fill=min_cases_in_window, align="left") >= min_cases_in_window)
   right_tail_matches <- roll_sum(cases, window_size, fill=min_cases_in_window, align="right") >= min_cases_in_window
   right_tail_matches[1:starting_window] <- TRUE
+  right_tail_matches <- cumall(right_tail_matches)
   filter_min_window_size <- left_tail_matches & right_tail_matches
   
   case_incidence <- as.incidence(cases[filter_min_window_size], dates = dates[filter_min_window_size])
