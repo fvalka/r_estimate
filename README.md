@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/259440541.svg)](https://zenodo.org/badge/latestdoi/259440541)
 # Investigation and Visualization of the Time-Delays Inherent to the Estimation of the Time-Varying Reproduction Number R(t) as Published for Austria
 
 R shiny app to visualize and investigate the different time delays in the estimates of the time-varying reproduction number, which is currently being published for Austria. 
