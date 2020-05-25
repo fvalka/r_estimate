@@ -155,7 +155,15 @@ ui <- fluidPage(theme="yeti.css",
   ),
   tags$footer(style="margin-left: -15px; margin-right: -15px; padding-bottom: 1em; padding-left: 1em; padding-right: 1em; background-color: #F8F8F8; border-top: 1px solid #95b2b7;",
               class="text-center",
-              tags$p(tags$small("© 2020 Fabian Valka and Carla Schuler")), 
+              tags$p(style="margin-top: 1em",
+                tags$a(href="https://zenodo.org/badge/latestdoi/259440541", tags$img(src="https://zenodo.org/badge/259440541.svg", alt="DOI")),
+                
+              ),
+              tags$p(tags$a(href="http://creativecommons.org/licenses/by/4.0/", tags$img(src="https://i.creativecommons.org/l/by/4.0/80x15.png", alt="CC-BY")),
+                     tags$br(),
+                     tags$small("Valka, Fabian and Schuler, Carla"),), 
+              tags$p(tags$small("Suggested citation: Valka, Fabian & Schuler, Carla. Investigation and Visualization of the Time-Delays Inherent to the Estimation of 
+                the Time-Varying Reproduction Number Rt as Published for Austria. (2020). doi:10.5281/zenodo.3841756")),
               tags$p(tags$small(tags$a(href="privacy.html", "Imprint & Privacy Policy")))
   )
 )
