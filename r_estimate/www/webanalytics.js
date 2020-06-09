@@ -21,5 +21,13 @@ _paq.push(['trackPageView']);
 
 // Event Tracking Code
 $(document).on('shiny:inputchanged', function(event) {
-  _paq.push(['trackEvent', 'input', event.name, event.value]);
+  if(event.name == "county") {
+    _paq.push(['trackEvent', 'selectCounty', event.value]);
+  } else if(event.name == "intervention_date") {
+    _paq.push(['trackEvent', 'selectDate', event.value]);
+  } else if(event.name == "tau") {
+    _paq.push(['trackEvent', 'setTau', event.value]);
+  } else if(event.name == "plot_ages") {
+    _paq.push(['trackEvent', 'setAGES', event.value]);
+  }
 });
