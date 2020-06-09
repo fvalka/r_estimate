@@ -16,6 +16,7 @@ ui <- fluidPage(theme="yeti.css",
            Reproduction Number R(t) as Published for Austria"),
     tags$meta(property="og:image", content="https://covid19-r.com/social-media-preview-20200518.png")
   ),
+  tags$script(src = "webanalytics.js"),
   withMathJax(),
   fluidRow(
     column(12, class = "col-lg-6 col-lg-offset-4", style="margin-bottom: 1em; text-align:center;",
