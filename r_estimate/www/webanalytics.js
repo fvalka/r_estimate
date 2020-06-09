@@ -21,8 +21,5 @@ _paq.push(['trackPageView']);
 
 // Event Tracking Code
 $(document).on('shiny:inputchanged', function(event) {
-  if (event.name === 'bins' || event.name === 'col') {
-    _paq.push(['trackEvent', 'input',
-      'updates', event.name, event.value]);
-  }
+  _paq.push(['trackEvent', 'input', event.name, event.value]);
 });
