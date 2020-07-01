@@ -69,8 +69,8 @@ server <- function(input, output) {
     
     r_plot <- r_plot +
       new_scale_fill() +
-      geom_ribbon(aes(ymin=`Quantile.0.25(R)`, ymax=`Quantile.0.75(R)`, fill="Own"), alpha=0.4) + 
-      geom_ribbon(aes(ymin=`Quantile.0.025(R)`, ymax=`Quantile.0.975(R)`), alpha=0.5, fill="#5f7e87") + 
+      geom_ribbon(aes(x=date, ymin=`Quantile.0.25(R)`, ymax=`Quantile.0.75(R)`, fill="Own"), alpha=0.4) + 
+      geom_ribbon(aes(x=date, ymin=`Quantile.0.025(R)`, ymax=`Quantile.0.975(R)`), alpha=0.5, fill="#5f7e87") + 
       geom_hline(yintercept=1, linetype="dashed", color = "black", size=0.5) +
       geom_vline(xintercept = infection_date, color="#d66449", alpha=0.3, size=2) +
       annotate(geom = "text", x = infection_date, y = 3.0, label="Infection", color="#822c20", hjust = 0.5, vjust=-0.4, angle = 90) +
