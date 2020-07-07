@@ -141,10 +141,8 @@ for (state in states) {
 
 saveRDS(data_result, "r_estimate/data/data.rds")
 
-stopCluster(cl)
-
 for (state in states) {
-  for(tau in 3:20) {
+  foreach(tau=3:20) %dopar% {
     result_for_csv <- data.frame(date=data_result[[state]][[tau-2]]$dates, 
                                  t_end=1:length(data_result[[state]][[tau-2]]$dates)) %>% 
       right_join(data_result[[state]][[tau-2]]$estimated_R)
@@ -155,3 +153,5 @@ for (state in states) {
               file = sprintf("%s/r-estimate-%d.csv", directory, tau))
   }
 }
+
+stopCluster(cl)
