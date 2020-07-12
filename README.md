@@ -11,6 +11,12 @@ Available on the web at: [covid19-r.com](https://covid19-r.com)
 For further details on the methods used please refer to the current draf of 
 the [method paper](https://fvalka.github.io/r_estimate/r_estimate-methods.pdf).
 
+## Dataset Output
+The Rt estimates are now also available as CSV files in the GitHub repo here in the folder:
+[r_estimate/data/csv](r_estimate/data/csv)
+
+for each time window, tau, using the naming schema `{state}/r-estimate-{tau}.csv` with AT being the countrywide estimate. 
+
 ## Build
 The Shiny app can simply be built using the Dockerimage provided in this repo. 
 
