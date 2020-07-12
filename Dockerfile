@@ -1,5 +1,5 @@
 # get shiny serves plus tidyverse packages image
-FROM rocker/shiny-verse:3.6.3
+FROM rocker/shiny-verse:4.0.2
 
 # system libraries of general use
 #RUN apt-get update && apt-get install -y \
@@ -35,7 +35,7 @@ COPY r_estimate/ /srv/shiny-server/
 EXPOSE 3838
 
 # allow permission
-RUN sudo chown -R shiny:shiny /srv/shiny-server
+RUN chown -R shiny:shiny /srv/shiny-server
 
 # run app
-CMD ["/usr/bin/shiny-server.sh"]
+CMD ["/init"]
