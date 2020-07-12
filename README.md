@@ -1,15 +1,19 @@
 [![DOI](https://zenodo.org/badge/259440541.svg)](https://zenodo.org/badge/latestdoi/259440541)
-# Investigation and Visualization of the Time-Delays Inherent to the Estimation of the Time-Varying Reproduction Number R(t) as Published for Austria
+# Investigation and Visualization of the Time-Delays Inherent to the Estimation of the Time-Varying Reproduction Number R<sub>t</sub> as Published for Austria
 
 R shiny app to visualize and investigate the different time delays in the estimates of the time-varying reproduction number, which is currently being published for Austria. 
+
+The estimation of R<sub>t</sub> is based upon the 
+[EpiEstim](https://github.com/mrc-ide/EpiEstim) R package, which uses the method described in 
+[Cori, A., Ferguson, N. M., Fraser, C. & Cauchemez, S. A New Framework and Software to Estimate Time-Varying Reproduction Numbers During Epidemics. American Journal of Epidemiology 178, 1505–1512 (2013)](https://academic.oup.com/aje/article/178/9/1505/89262).
+
+The time-delay estimation is based upon published estimates and our own work. For further details please refer to the current draft of our method paper:
+[Valka, F. & Schuler, C. Estimation and Interactive Visualization of the Time-Varying Reproduction Number Rt and the Time-Delay from Infection to Estimation. (2020)](https://fvalka.github.io/r_estimate/r_estimate-methods.pdf).
 
 ## Example Output
 ![Example Output](https://covid19-r.com/social-media-preview.png)
 
 Available on the web at: [covid19-r.com](https://covid19-r.com)
-
-For further details on the methods used please refer to the current draf of 
-the [method paper](https://fvalka.github.io/r_estimate/r_estimate-methods.pdf).
 
 ## Dataset Output
 The Rt estimates are now also available as CSV files in the GitHub repo here in the folder:
