@@ -50,3 +50,20 @@ Rds-files of the time-delay ECDFs for Austria can be found in the `r_estimate/da
 
 For obtaining your own estimates you can use the RScripts provided in 
 `time_delay_ecdf`.
+
+## Data Sources
+
+### Case data for Austria
+[Bundesministerium für Soziales, Gesundheit, Pflege und Konsumentenschutz](https://www.sozialministerium.at/Informationen-zum-Coronavirus/Neuartiges-Coronavirus-(2019-nCov).html)
+aggregated by the Complexity Science Hub Vienna and published on 
+[GitHub](https://github.com/osaukh/dashcoch-AT/blob/master/data_AT/covid19_cases_austria.csv).
+
+The data as published at the 15:00 CET deadline is used in this dataset.
+
+### AGES R<sub>t</sub> estimate
+TU Graz Rt,τ estimate AGES - Österreichische Agentur für Gesundheit und Ernährungssicherheit GmbH
+available online here: [Epidemiologische Parameter des COVID19 Ausbruchs, Update 10.07.2020, Österreich, 2020](https://www.ages.at/en/wissen-aktuell/publikationen/epidemiologische-parameter-des-covid19-ausbruchs-oesterreich-2020/)
+
+### Public holidays 
+Public holiday data from [nager-date](https://github.com/nager/Nager.Date) is used for a different fill 
+colour on public holidays. 
