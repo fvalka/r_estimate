@@ -139,6 +139,7 @@ for (state in states) {
   data_result[[state]] <- foreach(tau=3:20) %dopar% calculate(state, tau)
 }
 
+dir.create("r_estimate/data/", showWarnings = FALSE, recursive = TRUE)
 saveRDS(data_result, "r_estimate/data/data.rds")
 
 for (state in states) {
