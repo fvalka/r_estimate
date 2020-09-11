@@ -15,8 +15,8 @@ registerDoParallel(cl)
 
 ## Reading all data
 d_Austria_per_county <- read.csv("https://raw.githubusercontent.com/osaukh/dashcoch-AT/master/data_AT/covid19_cases_austria.csv", fileEncoding="UTF-8-BOM")
-d_ages_R_eff <- read.csv("https://www.ages.at/fileadmin/AGES2015/Wissen-Aktuell/COVID19/R_eff.csv", sep=";", dec=",")
-d_ages_States <- read.csv("https://www.ages.at/fileadmin/AGES2015/Wissen-Aktuell/COVID19/R_eff_bundesland.csv", sep=";", dec=",")
+d_ages_R_eff <- read.csv("https://www.ages.at/fileadmin/AGES2015/Wissen-Aktuell/COVID19/R_eff_01.csv", sep=";", dec=",")
+d_ages_States <- read.csv("https://www.ages.at/fileadmin/AGES2015/Wissen-Aktuell/COVID19/R_eff_bundesland_01.csv", sep=";", dec=",")
 
 date_to_weekday <- Vectorize(function(input_date) {
   if (input_date %in% holiday_dates) {
