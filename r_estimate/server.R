@@ -83,7 +83,8 @@ server <- function(input, output) {
       labs(fill = "Source") + 
       theme(plot.caption=element_text(hjust=0)) +
       scale_color_manual(values = colors) +
-      scale_fill_manual(values = colors)
+      scale_fill_manual(values = colors) +
+      scale_x_date(date_breaks = "1 month")
     
     if(plot_ages) {
       r_plot <- r_plot + geom_line(data = data$ages_estimate, aes(x=ymd(Datum), y=R_eff), alpha=0.7, color="#e76f51") +
@@ -104,7 +105,7 @@ server <- function(input, output) {
                        xend=End, 
                        y=3.0, yend=3.0), 
                    size = 0.5, colour="#822c20", alpha=0.4,
-                   arrow = arrow(length = unit(0.3, "cm")))
+                   arrow = arrow(length = unit(0.3, "cm"))) 
     
     colors_weekday <- c("Workday" = "#e19257", "Weekend" = "#ad663d", "Holiday" = "#450f09")
     cases_plot <- ggbarplot(cases_with_dates, x="Date", y="Cases", fill="Weekday", alpha=0.6, color = NA) + 
@@ -112,7 +113,8 @@ server <- function(input, output) {
       xlab("Reporting date") +
       ylab("New cases per day") + 
       coord_cartesian(xlim = c(head(dates_all_plot, 1), tail(dates_all_plot, 1))) +
-      scale_fill_manual(values = colors_weekday, limits=c("Workday", "Weekend", "Holiday"))
+      scale_fill_manual(values = colors_weekday, limits=c("Workday", "Weekend", "Holiday")) +
+      scale_x_date(date_breaks = "1 month")
     
     return(ggarrange(r_plot, cases_plot, ncol = 1, nrow = 2, heights = c(2, 0.9), align = "v"))
   }

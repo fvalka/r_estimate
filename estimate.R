@@ -119,7 +119,7 @@ calculate <- function(state, window_size) {
     cases = cases,
     case_incidence = case_incidence,
     window_size = window_size,
-    estimated_R = estimation_result$R %>% right_join(datelist),
+    estimated_R = estimation_result$R %>% right_join(datelist) %>% arrange(date),
     ages_estimate = d_ages
   ))
 }
